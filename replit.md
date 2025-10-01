@@ -54,7 +54,10 @@ Foi desenvolvida em **TypeScript** com **Express**, utilizando faixas etárias p
 **Justificativa:** precificação baseada em risco, ajustada pelo perfil etário.  
 
 ### Fórmula Financeira  
-- Fórmula de amortização padrão (PMT):  
+- Fórmula de amortização padrão (PMT): 
+
+PMT = P * (r * (1 + r)^n) / ((1 + r)^n - 1)
+
 - Considera casos de taxa zero.  
 
 **Justificativa:** fórmula padrão do mercado, garantindo precisão.  
