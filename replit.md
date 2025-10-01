@@ -1,146 +1,131 @@
-# Credit Simulator API
+💳 API do Simulador de Crédito
 
-## Overview
+Visão Geral
 
-The Credit Simulator is a backend API application designed to calculate loan simulations based on customer age, loan amount, and repayment terms. The system provides endpoints for both single and batch loan simulations, calculating monthly payments, total interest, and total payable amounts. Built with TypeScript and Express, the application uses age-based interest rate tiers to determine loan conditions, making it suitable for financial institutions offering personalized credit products.
+O Simulador de Crédito é uma aplicação backend em forma de API que calcula simulações de empréstimos com base na idade do cliente, valor solicitado e prazo de pagamento.
+A API oferece endpoints para simulação única e em lote, retornando valor da parcela mensal, juros totais e valor total a pagar.
+Foi desenvolvida em TypeScript com Express, utilizando faixas etárias para definir taxas de juros, sendo útil para instituições financeiras que oferecem crédito personalizado.
 
-## User Preferences
+⸻
 
-Preferred communication style: Simple, everyday language.
+Arquitetura do Sistema
 
-## System Architecture
+Framework & Runtime
+	•	Tecnologia: Node.js com Express 5.x
+	•	Linguagem: TypeScript (tipagem estrita)
+	•	Justificativa: Express é leve e ideal para APIs RESTful; TypeScript traz segurança e evita erros em cálculos financeiros.
 
-### Backend Architecture
+Padrão de Arquitetura em Camadas
+	•	Controllers: tratam requisições/respostas HTTP e validam entrada.
+	•	Services: concentram a lógica de negócio (simulações).
+	•	Utils: funções puras para cálculos financeiros.
+	•	Routes: definem endpoints da API.
+	•	Justificativa: separação clara facilita manutenção, testes e reuso da lógica de cálculo.
 
-**Framework & Runtime**
-- **Technology**: Node.js with Express 5.x
-- **Language**: TypeScript with strict type checking
-- **Rationale**: Express provides a lightweight, unopinionated framework perfect for RESTful APIs. TypeScript adds type safety and better developer experience for financial calculations where precision is critical.
+⸻
 
-**Layered Architecture Pattern**
-- **Controllers**: Handle HTTP request/response logic and input validation
-- **Services**: Contain business logic for loan simulations
-- **Utils**: Pure functions for financial calculations (interest rates, payments)
-- **Routes**: Define API endpoints and validation rules
-- **Rationale**: Clear separation of concerns makes the codebase maintainable and testable. Financial calculation logic is isolated in pure functions for reliability and reusability.
+Design da API
 
-### API Design
+Endpoints RESTful
+	•	POST /api/simulate → simulação única
+	•	POST /api/simulate/batch → processamento em lote (até 10.000 simulações)
+	•	GET /health → checagem de saúde da API
 
-**RESTful Endpoints**
-- `POST /api/simulate` - Single loan simulation
-- `POST /api/simulate/batch` - Batch processing up to 10,000 simulations
-- `GET /health` - Health check endpoint
-- **Rationale**: RESTful design provides a standard, predictable API structure. Batch endpoint addresses performance requirements for processing multiple simulations efficiently.
+Justificativa: API previsível e padronizada. O endpoint de lote garante desempenho ao processar muitas simulações.
 
-**Input Validation**
-- Uses `express-validator` for request validation
-- Validates loan amounts (positive numbers), birth dates (ISO 8601), and term lengths (1-600 months)
-- **Rationale**: Input validation at the route level prevents invalid data from reaching business logic, ensuring data integrity and security.
+Validação de Entrada
+	•	Middleware: express-validator
+	•	Valida:
+	•	Valor do empréstimo (número positivo)
+	•	Data de nascimento (ISO 8601)
+	•	Prazo em meses (1 a 600)
 
-### Business Logic
+Justificativa: Evita dados inválidos chegarem na lógica de negócio.
 
-**Age-Based Interest Rate Calculation**
-- Age ≤ 25: 5% annual rate
-- Age 26-40: 3% annual rate
-- Age 41-60: 2% annual rate
-- Age > 60: 4% annual rate
-- **Rationale**: Risk-based pricing model that adjusts interest rates based on customer demographics.
+⸻
 
-**Financial Calculations**
-- Uses standard amortization formulas (PMT calculation)
-- Monthly payment: `P * (r * (1 + r)^n) / ((1 + r)^n - 1)`
-- Handles zero-interest edge cases
-- **Rationale**: Industry-standard loan calculation formulas ensure accuracy and compatibility with financial systems.
+Regras de Negócio
 
-**Date Handling**
-- Uses `date-fns` library for age calculations
-- Handles leap years and edge cases
-- **Rationale**: Reliable date library prevents calculation errors in age determination, which directly affects interest rates.
+Taxa de Juros por Idade
+	•	Até 25 anos → 5% ao ano
+	•	De 26 a 40 anos → 3% ao ano
+	•	De 41 a 60 anos → 2% ao ano
+	•	Acima de 60 anos → 4% ao ano
 
-### Testing Strategy
+Justificativa: precificação baseada em risco, ajustada pelo perfil etário.
 
-**Test Coverage**
-- Unit tests for calculation utilities (age, interest rates, payments)
-- Integration tests for API endpoints
-- Performance tests for batch processing (100, 1000, 5000 simulations)
-- **Test Framework**: Jest with ts-jest preset
-- **Rationale**: Comprehensive testing ensures financial calculations are accurate. Performance tests validate scalability requirements.
+Fórmula Financeira
+	•	Fórmula de amortização padrão (PMT):
+PMT = P * (r * (1 + r)^n) / ((1 + r)^n - 1)
+	•	Considera casos de taxa zero.
 
-**Performance Requirements**
-- 100 simulations < 5 seconds
-- 1000 simulations < 10 seconds
-- Supports up to 10,000 batch simulations
-- **Rationale**: Performance benchmarks ensure the system can handle production-scale workloads.
+Justificativa: fórmula padrão do mercado, garantindo precisão.
 
-### Code Quality
+Datas
+	•	Biblioteca: date-fns
+	•	Calcula idade corretamente, inclusive anos bissextos.
 
-**Linting & Type Safety**
-- ESLint with TypeScript plugin
-- Strict TypeScript configuration
-- **Rationale**: Enforces code consistency and catches errors at compile time, critical for financial applications.
+⸻
 
-**Build & Development**
-- TypeScript compilation to CommonJS
-- Nodemon for development hot-reload
-- Source maps for debugging
-- **Rationale**: Developer productivity tools while maintaining production-ready compilation.
+Estratégia de Testes
 
-## External Dependencies
+Cobertura
+	•	Unitários: utilitários (idade, juros, parcelas)
+	•	Integração: endpoints da API
+	•	Performance: simulações em lote (100, 1000, 5000)
+	•	Framework: Jest + ts-jest
 
-### Core Dependencies
+Justificativa: garante precisão financeira e valida escalabilidade.
 
-**Express.js (v5.1.0)**
-- Purpose: Web framework for REST API
-- Used for: HTTP server, routing, middleware
+Requisitos de Performance
+	•	100 simulações < 5s
+	•	1000 simulações < 10s
+	•	Suporte até 10.000 simulações em lote
 
-**TypeScript (v5.9.3)**
-- Purpose: Static typing and compilation
-- Used for: Type safety across the codebase
+⸻
 
-**date-fns (v4.1.0)**
-- Purpose: Date manipulation and calculations
-- Used for: Age calculation from birth dates
-- Alternative considered: moment.js (rejected due to larger bundle size)
+Qualidade do Código
 
-### Validation & Testing
+Linting & Tipagem
+	•	ESLint + plugin TypeScript
+	•	Configuração estrita do TypeScript
 
-**express-validator (v7.2.1)**
-- Purpose: Request validation middleware
-- Used for: Input sanitization and validation on API endpoints
+Justificativa: consistência e segurança em tempo de compilação.
 
-**Jest (v30.2.0) + ts-jest (v29.4.4)**
-- Purpose: Testing framework
-- Used for: Unit tests, integration tests, and performance tests
+Build & Desenvolvimento
+	•	Compilação TypeScript → CommonJS
+	•	Nodemon para hot-reload
+	•	Source maps para debug
 
-**supertest (v7.1.4)**
-- Purpose: HTTP assertion library
-- Used for: API endpoint testing
+⸻
 
-### Development Tools
+Dependências Externas
 
-**ESLint (v9.36.0) + TypeScript ESLint**
-- Purpose: Code linting and style enforcement
-- Configuration: Recommended TypeScript rules with custom overrides
+Core
+	•	Express (5.1.0): servidor e roteamento
+	•	TypeScript (5.9.3): tipagem estática
+	•	date-fns (4.1.0): manipulação de datas
 
-**Nodemon (v3.1.10)**
-- Purpose: Development file watcher
-- Used for: Auto-reloading during development
+Validação & Testes
+	•	express-validator (7.2.1): validação de entrada
+	•	Jest (30.2.0) + ts-jest (29.4.4): testes
+	•	supertest (7.1.4): testes de endpoints
 
-**ts-node (v10.9.2)**
-- Purpose: TypeScript execution
-- Used for: Running TypeScript directly in development mode
+Ferramentas de Desenvolvimento
+	•	ESLint (9.36.0): linting
+	•	Nodemon (3.1.10): reload automático
+	•	ts-node (10.9.2): execução de TS em dev
 
-### Data Storage
+⸻
 
-**Current State**: No database integration
-- All calculations are stateless and performed in-memory
-- No persistence layer implemented
-- **Note**: The application could integrate a database (e.g., with Drizzle ORM and PostgreSQL) for storing simulation history, user data, or audit logs in future iterations.
+Armazenamento de Dados
+	•	Atualmente não há banco de dados.
+	•	Todas as simulações são calculadas em memória (stateless).
+	•	Possível evolução: integrar com Postgres (via Drizzle ORM) para guardar histórico de simulações, usuários ou logs de auditoria.
 
-### External Services
+⸻
 
-**None currently integrated**
-- No third-party APIs
-- No external authentication services
-- No payment gateways
-- Self-contained calculation engine
+Integrações Externas
+	•	Nenhuma no momento.
+	•	Não há autenticação externa, gateways de pagamento ou APIs de terceiros.
+	•	Motor de cálculo é 100% autocontido.
